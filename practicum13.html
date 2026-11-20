@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puzzle Nest</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f4;
+            color: #163020;
+            padding: 35px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .crud-card {
+            background-color: #ffffff;
+            border: 1.5px solid #4ea377;
+            border-radius: 14px;
+            padding: 36px 40px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+        }
+
+        .crud-card h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #163020;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+
+        .controls-row input {
+            padding: 10px 14px;
+            border: 1px solid #c5d6cc;
+            border-radius: 7px;
+            font-size: 14px;
+            color: #163020;
+            background-color: #ffffff;
+            outline: none;
+            flex: 1;
+            min-width: 170px;
+        }
+
+        .controls-row input:focus {
+            border-color: #2c6648;
+            box-shadow: 0 0 0 2px rgba(44, 102, 72, 0.15);
+        }
+
+        .btn-green {
+            background-color: #2c6648;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 7px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-green:hover {
+            background-color: #1d422e;
+        }
+
+        .btn-red {
+            background-color: #c92a2a;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 7px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-red:hover {
+            background-color: #a61e1e;
+        }
+
+        /* Light Green List Box Matching Screenshot */
+        .list-box {
+            background-color: #e6f2ec;
+            border-radius: 10px;
+            padding: 26px 30px;
+            margin-top: 22px;
+            min-height: 160px;
+        }
+
+        .list-box ol {
+            list-style: none;
+            padding-left: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #163020;
+            line-height: 2;
+        }
+
+        .empty-msg {
+            font-size: 15px;
+            font-weight: 600;
+            color: #3a4f43;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="crud-card">
+        <h1>🧩 Puzzle Nest Challenge Batch (CRUD)</h1>
+
+        <!-- Row 1: Add, Delete, Item # for Update -->
+        <div class="controls-row">
+            <input type="text" id="addInput" placeholder="Add puzzle (e.g. 5 Logic Grids)">
+            <button class="btn-green" onclick="addItem()">Add</button>
+
+            <input type="number" id="deleteIndex" min="1" placeholder="Item # to delete">
+            <button class="btn-red" onclick="deleteItem()">Delete</button>
+
+            <input type="number" id="updateIndex" min="1" placeholder="Item #">
+        </div>
+
+        <!-- Row 2: Updated Text, Update Button, Search Input, Search Button -->
+        <div class="controls-row">
+            <input type="text" id="updateText" placeholder="Updated puzzle/level">
+            <button class="btn-green" onclick="updateItem()">Update</button>
+
+            <input type="text" id="searchInput" placeholder="Search batch..." oninput="renderList()">
+            <button class="btn-green" onclick="renderList()">Search</button>
+        </div>
+
+        <!-- Light Green Output Box -->
+        <div class="list-box" id="listContainer"></div>
+    </div>
+
+    <script>
+        let puzzleBatch = [
+            "5 Logic Grid Puzzles",
+            "2 Cipher & Code Riddles",
+            "1 Master Labyrinth Challenge",
+            "4 Campus Clue Hunt Tasks"
+        ];
+
+        function renderList() {
+            const container = document.getElementById('listContainer');
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+
+            const filtered = puzzleBatch
+                .map((item, idx) => ({ text: item, num: idx + 1 }))
+                .filter(entry => entry.text.toLowerCase().includes(query));
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="empty-msg">No matching puzzle items found.</div>`;
+                return;
+            }
+
+            let html = '<ol>';
+            filtered.forEach(entry => {
+                html += `<li>${entry.num}. ${entry.text}</li>`;
+            });
+            html += '</ol>';
+            container.innerHTML = html;
+        }
+
+        function addItem() {
+            const input = document.getElementById('addInput');
+            const val = input.value.trim();
+            if (!val) {
+                alert("Please enter a puzzle item to add.");
+                return;
+            }
+            puzzleBatch.push(val);
+            input.value = '';
+            document.getElementById('searchInput').value = '';
+            renderList();
+        }
+
+        function deleteItem() {
+            const idxInput = document.getElementById('deleteIndex');
+            const idx = parseInt(idxInput.value, 10);
+            if (isNaN(idx) || idx < 1 || idx > puzzleBatch.length) {
+                alert(`Please enter a valid item number between 1 and ${puzzleBatch.length}.`);
+                return;
+            }
+            puzzleBatch.splice(idx - 1, 1);
+            idxInput.value = '';
+            renderList();
+        }
+
+        function updateItem() {
+            const idxInput = document.getElementById('updateIndex');
+            const textInput = document.getElementById('updateText');
+            const idx = parseInt(idxInput.value, 10);
+            const newText = textInput.value.trim();
+
+            if (isNaN(idx) || idx < 1 || idx > puzzleBatch.length) {
+                alert(`Please enter a valid item number between 1 and ${puzzleBatch.length}.`);
+                return;
+            }
+            if (!newText) {
+                alert("Please enter the updated puzzle text.");
+                return;
+            }
+
+            puzzleBatch[idx - 1] = newText;
+            idxInput.value = '';
+            textInput.value = '';
+            renderList();
+        }
+
+        window.onload = renderList;
+    </script>
+
+</body>
+</html>
